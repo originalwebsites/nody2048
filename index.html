@@ -13,6 +13,8 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      overflow: hidden; /* ページスクロール防止 */
+      touch-action: none; /* スワイプ時のブラウザ動作を無効化 */
     }
     .game {
       text-align: center;
@@ -48,7 +50,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 26px;
+      font-size: 32px;
       font-weight: bold;
       color: #776e65;
       transition: all 0.15s ease;
@@ -59,7 +61,11 @@
     .cell[data-value="16"] { background: #f59563; color: #f9f6f2; }
     .cell[data-value="32"] { background: #f67c5f; color: #f9f6f2; }
     .cell[data-value="64"] { background: #f65e3b; color: #f9f6f2; }
-    .cell[data-value="128"] { background: #edcf72; color: #f9f6f2; font-size: 22px; }
+    .cell[data-value="128"] { background: #edcf72; color: #f9f6f2; font-size: 26px; }
+    .cell[data-value="256"] { background: #edcc61; color: #f9f6f2; font-size: 26px; }
+    .cell[data-value="512"] { background: #edc850; color: #f9f6f2; font-size: 26px; }
+    .cell[data-value="1024"] { background: #edc53f; color: #f9f6f2; font-size: 22px; }
+    .cell[data-value="2048"] { background: #edc22e; color: #f9f6f2; font-size: 22px; }
     .cell[data-value="256"] { background: #edcc61; color: #f9f6f2; font-size: 22px; }
     .cell[data-value="512"] { background: #edc850; color: #f9f6f2; font-size: 22px; }
     .cell[data-value="1024"] { background: #edc53f; color: #f9f6f2; font-size: 20px; }
@@ -90,11 +96,11 @@
 <body>
   <div class="game">
     <h1>2048</h1>
-    <div class="score-box">スコア: <span id="score">0</span></div>
+    <div class="score-box">SCORE: <span id="score">0</span></div>
     <div class="grid" id="grid">
-      <div class="overlay" id="gameOver">ゲームオーバー</div>
+      <div class="overlay" id="gameOver">GAME OVER</div>
     </div>
-    <button onclick="init()">リスタート</button>
+    <button onclick="init()">RETRY NOW</button>
     <p>矢印キー / スワイプで操作</p>
   </div>
 
@@ -170,11 +176,21 @@
     });
 
     let sx,sy;
-    document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;});
-    document.addEventListener('touchend',e=>{
-      const dx=e.changedTouches[0].clientX-sx;
-      const dy=e.changedTouches[0].clientY-sy;
-      if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'R':'L'); else move(dy>0?'D':'U');
+    // タッチ操作（ページスクロールを完全に防止）
+    let sx, sy;
+    document.addEventListener('touchstart', e => {
+      e.preventDefault();
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+    }, { passive: false });
+
+    document.addEventListener('touchend', e => {
+      e.preventDefault();
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 'R' : 'L');
+      else move(dy > 0 ? 'D' : 'U');
+    }, { passive: false }); else move(dy>0?'D':'U');
     });
 
     init();
